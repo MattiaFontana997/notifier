@@ -446,7 +446,7 @@ class Alexa_Manager(hass.Hass):
 
     def has_numbers(self, string: str):
         """Check if a string contains a number."""
-        numbers = re.compile("\d{2}:\d{2}|\d{4,}|\d{3,}\.\d")
+        numbers = re.compile(r"\d{2}:\d{2}|\d{4,}|\d{3,}\.\d")
         return numbers.search(string)
 
     def remove_tags(self, text: str) -> str:
