@@ -9,6 +9,7 @@ from typing import Any, Optional
 from requests import get, HTTPError, RequestException
 from zipfile import ZipFile, BadZipFile
 from io import BytesIO
+from pathlib import Path
 
 """
 Centro Notifiche - Dispatch Module
@@ -134,7 +135,7 @@ class Notifier_Dispatch(hass.Hass):
 
         #### FROM CONFIGURATION BLUEPRINT ###
         self.config = self.get_plugin_config()
-        self.config_dir = "/homeassistant" #self.config["config_dir"]
+        self.my_config_dir = "/homeassistant"
         self.log(f"configuration dir: {self.config_dir}")
         ### FROM SENSOR CONFIG
         sensor_config = self.get_state("sensor.notifier_config", attribute="all", default={})
@@ -261,9 +262,10 @@ class Notifier_Dispatch(hass.Hass):
         is_beta = self.cfg.get("beta_version")
         if not is_download:
             return
-        ha_config_file = self.config_dir + "/configuration.yaml"
-        cn_path = self.config_dir + f"/{PATH_PACKAGES}/"
-        blueprints_path = self.config_dir + f"/{PATH_BLUEPRINTS}/"
+            
+        ha_config_file = Path(self.my_config_dir) / "configuration.yaml"
+        cn_path = Path(self.my_config_dir) / PATH_PACKAGES
+        blueprints_path = Path(self.my_config_dir) / PATH_BLUEPRINTS
         ###################################################
         branche = "beta" if is_beta else "main"
         url_main = URL_ZIP.format(branche)

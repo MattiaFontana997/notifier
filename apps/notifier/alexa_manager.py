@@ -369,15 +369,18 @@ class Alexa_Manager(hass.Hass):
 
         # Push notification - Only one device is needed
         push = self.check_bool(alexa.get(PUSH, False))
+
         if (push or data_type in MOBILE_PUSH_TYPE) and message:
             message_push = self.remove_tags(self.replace_regular(message, SUB_TEXT))
             type_ = {TYPE: PUSH} if push else {TYPE: data_type}
             self.call_service(
                 NOTIFY + ALEXA_SERVICE,
-                data=type_,
-                target=media_player[0],
-                title=str(alexa.get(TITLE, "")),
-                message=message_push,
+                service_data={
+                    "target":media_player[0],
+                    "data":type_,
+                    "title":str(alexa.get(TITLE, "")),
+                    "message":message_push
+                }
             )
 
         # Media Content # TODO Restore volume??
@@ -657,6 +660,7 @@ class Alexa_Manager(hass.Hass):
                 self.lg(f"WORKER: {type(data)} value {data}")
                 self.set_state(self.binary_speak, state="on", attributes={**data})
                 media_player = data[MEDIA_PLAYER]
+
                 if data[AUTO_VOLUMES]:
                     self.volume_auto_silent(media_player, data[VOLUME])
                     raise UnboundLocalError(data[AUTO_VOLUMES])
@@ -717,9 +721,11 @@ class Alexa_Manager(hass.Hass):
                 # Speak >>>
                 self.call_service(
                     NOTIFY + data[NOTIFIER],
-                    data=alexa_data,
-                    target=media_player,
-                    message=msg.strip(),
+                    service_data={
+                        "message": msg.strip(),
+                        "target": media_player,
+                        "data": alexa_data
+                    }
                 )
 
                 # Actionable Notification >>>
