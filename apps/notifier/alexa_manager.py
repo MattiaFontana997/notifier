@@ -51,14 +51,14 @@ WHISPER = "whisper"
 
 MOBILE_PUSH_TYPE = (PUSH, "dropin", "dropin_notification")
 SUB_VOICE = [
-    ("[\U00010000-\U0010ffff]", ""),  # strip emoji
-    ("[\?\.\!,]+(?=[\?\.\!,])", ""),  # strip duplicate dot and comma
-    ("(\s+\.|\s+\.\s+|[\.])(?! )(?![^{<]*[}>])(?![^\d.]*\d)", ". "),
-    ("&", " and "),  # escape
-    ("[\n\*]", " "),  # remove end-of-line (Carriage Return)
-    (" +", " "),  # remove whitespace
+    (r"[\U00010000-\U0010ffff]", ""),  # strip emoji
+    (r"[\?\.\!,]+(?=[\?\.\!,])", ""),  # strip duplicate dot and comma
+    (r"(\s+\.|\s+\.\s+|[\.])(?! )(?![^{<]*[}>])(?![^\d.]*\d)", ". "),
+    (r"&", " and "),  # escape
+    (r"[\n\*]", " "),  # remove end-of-line (Carriage Return)
+    (r" +", " "),  # remove whitespace
 ]
-SUB_TEXT = [(" +", " "), ("\s\s+", "\n")]
+SUB_TEXT = [(r" +", r" "), (r"\s\s+", r"\n")]
 
 SPEECHCON_IT = (
     "a ah",
@@ -600,7 +600,14 @@ class Alexa_Manager(hass.Hass):
                 continue
             self.lg(f"DIFFERENT VOLUMES: {volume_get} - DEFAULT: {volume}")
             if status.get("state", "") != "playing":
-                self.call_service(NOTIFY + ALEXA_SERVICE, data={TYPE: "tts"}, target=i, message=m)
+                self.call_service(
+                    NOTIFY + ALEXA_SERVICE, 
+                    service_data={
+                        "target": i,
+                        "data": {TYPE: "tts"}
+                    }, 
+                    message=m
+                )
                 time.sleep(2)
             self.call_service("media_player/volume_set", entity_id=i, volume_level=volume)
             # Force attribute volume level in Home assistant
